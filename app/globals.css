@@ -19,3 +19,14 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Smooth transitions for interactive elements */
+* {
+  transition-property: transform, opacity, filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ensure images maintain aspect ratio */
+img {
+  display: block;
+}

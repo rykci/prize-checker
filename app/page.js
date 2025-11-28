@@ -1,9 +1,7 @@
 'use client'
-import Image from 'next/image'
 import { Textarea } from '@mantine/core'
 import { Button } from '@mantine/core'
 import { useState } from 'react'
-import { useEffect } from 'react'
 
 export default function Home() {
   const cardBack = {
@@ -94,12 +92,14 @@ export default function Home() {
 
   return (
     <div className='flex flex-col min-h-screen font-[family-name:var(--font-geist-sans)]'>
-      <main className='grow flex flex-col  items-center  min-w-screen'>
-        <div>Manual Prize Checker</div>
+      <main className='grow flex flex-col items-center w-full max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8'>
+        <h1 className='text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-center'>
+          Manual Prize Checker
+        </h1>
         {deckInfo.length == 0 ? (
-          <div className='grow flex flex-col justify-center w-2/5'>
+          <div className='grow flex flex-col justify-center w-full max-w-2xl'>
             <Textarea
-              className='pb-10 w-auto'
+              className='mb-4 w-full'
               variant='filled'
               placeholder='Enter decklist'
               autosize
@@ -108,54 +108,76 @@ export default function Home() {
               value={decklist}
               onChange={(e) => setDecklist(e.target.value)}
             />
-            <Button onClick={handleImport} className='w-screen p-16'>
+            <Button onClick={handleImport} className='w-full py-3 text-lg'>
               Import
             </Button>
           </div>
         ) : (
-          <Button onClick={resetImport} className='w-screen p-16'>
-            Reset
-          </Button>
+          <div className='w-full mb-6'>
+            <Button onClick={resetImport} className='w-full sm:w-auto px-8 py-3'>
+              Reset
+            </Button>
+          </div>
         )}
-        <div className='deck sm:w-fit md:w-screen lg:w-1/2 grid grid-cols-3 gap-1 lg:p-16'>
-          {deckInfo.length > 0 ? (
-            prizes.map((card, index) => (
-              <div
-                key={index}
-                className={`relative ${
-                  card.img != cardBack.img ? 'hover:cursor-pointer' : ''
-                } ${card.prizeDrawn ? 'grayscale' : ''}`}
-                onClick={() => handleRemovePrize(index)}
-              >
-                <img src={card.img} />
+        {deckInfo.length > 0 && (
+          <>
+            <div className='w-full mb-8'>
+              <h2 className='text-xl sm:text-2xl font-semibold mb-4 text-center'>
+                Prize Cards
+              </h2>
+              <div className='grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 max-w-2xl mx-auto'>
+                {prizes.map((card, index) => (
+                  <div
+                    key={index}
+                    className={`relative transition-all duration-200 ${
+                      card.img != cardBack.img
+                        ? 'hover:cursor-pointer hover:scale-105 hover:shadow-lg'
+                        : ''
+                    } ${card.prizeDrawn ? 'grayscale opacity-60' : ''}`}
+                    onClick={() => handleRemovePrize(index)}
+                  >
+                    <img
+                      src={card.img}
+                      alt={card.img == cardBack.img ? 'Card back' : 'Prize card'}
+                      className='w-full h-auto object-contain rounded-lg'
+                    />
+                  </div>
+                ))}
               </div>
-            ))
-          ) : (
-            <></>
-          )}
-        </div>
-        <div className='deck sm:w-fit md:w-screen lg:w-1/2 grid grid-cols-8 gap-1'>
-          {deckInfo.length > 0 ? (
-            deckInfo.map((card) => (
-              <div
-                onClick={(e) => handlePrize(e, card.indexInDeck)}
-                key={card.indexInDeck}
-                className={`relative ${
-                  card.quantity > 0 ? 'hover:cursor-pointer' : 'grayscale'
-                }`}
-              >
-                <img src={card.img} />
-                <div className='absolute left-1/2 transform -translate-x-1/2 bottom-0 text-white font-semibold bg-red-800 border-2 rounded-full sm:w-8 sm:h-8 lg:w-8 lg:h-8 text-center flex items-center justify-center'>
-                  {card.quantity}
-                </div>
+            </div>
+            <div className='w-full'>
+              <h2 className='text-xl sm:text-2xl font-semibold mb-4 text-center'>
+                Deck
+              </h2>
+              <div className='grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 sm:gap-3'>
+                {deckInfo.map((card) => (
+                  <div
+                    onClick={(e) => handlePrize(e, card.indexInDeck)}
+                    key={card.indexInDeck}
+                    className={`relative transition-all duration-200 ${
+                      card.quantity > 0
+                        ? 'hover:cursor-pointer hover:scale-105 hover:shadow-lg'
+                        : 'grayscale opacity-50'
+                    }`}
+                  >
+                    <img
+                      src={card.img}
+                      alt='Deck card'
+                      className='w-full h-auto object-contain rounded-lg'
+                    />
+                    <div className='absolute left-1/2 transform -translate-x-1/2 bottom-1 sm:bottom-2 text-white font-bold bg-red-700 border-2 border-white rounded-full w-7 h-7 sm:w-8 sm:h-8 text-xs sm:text-sm text-center flex items-center justify-center shadow-lg'>
+                      {card.quantity}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))
-          ) : (
-            <></>
-          )}
-        </div>
+            </div>
+          </>
+        )}
       </main>
-      <footer className=''>by rykci</footer>
+      <footer className='text-center py-4 text-sm text-gray-600 dark:text-gray-400'>
+        by rykci
+      </footer>
     </div>
   )
 }
