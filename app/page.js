@@ -34,6 +34,8 @@ export default function Home() {
       let quantity = words[0]
       let cardNumber = words[words.length - 1]
       let setSymbol = words[words.length - 2]
+      // Extract card name (everything between quantity and set symbol)
+      let cardName = words.slice(1, words.length - 2).join(' ')
 
       cardNumber = cardNumber.padStart(3, '0')
       let img = `https://limitlesstcg.nyc3.digitaloceanspaces.com/tpci/${setSymbol}/${setSymbol}_${cardNumber}_R_EN.png`
@@ -42,6 +44,8 @@ export default function Home() {
         setSymbol,
         cardNumber,
         img,
+        name: cardName,
+        loading: true,
         indexInDeck,
       }
     })
@@ -59,7 +63,7 @@ export default function Home() {
       card.quantity -= 1
 
       newDeckInfo[cardIndex] = card
-      newPrizes.push({ ...card, prizeDrawn: false })
+      newPrizes.push({ ...card, prizeDrawn: false, loading: card.loading || false })
 
       while (newPrizes.length < 6) {
         newPrizes.push(cardBack)
@@ -136,10 +140,46 @@ export default function Home() {
                     } ${card.prizeDrawn ? 'grayscale opacity-60' : ''}`}
                     onClick={() => handleRemovePrize(index)}
                   >
+                    {card.loading && card.img != cardBack.img && (
+                      <div className='relative w-full'>
+                        <img
+                          src='/card-back.png'
+                          alt='Loading card'
+                          className='w-full h-auto object-contain rounded-lg'
+                        />
+                        {card.name && (
+                          <div className='absolute inset-0 flex items-center justify-center p-2'>
+                            <p className='text-white text-[10px] sm:text-sm font-semibold text-center leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]'>
+                              {card.name}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     <img
                       src={card.img}
-                      alt={card.img == cardBack.img ? 'Card back' : 'Prize card'}
-                      className='w-full h-auto object-contain rounded-lg'
+                      alt={card.img == cardBack.img ? 'Card back' : card.name || 'Prize card'}
+                      className={`w-full h-auto object-contain rounded-lg ${
+                        card.loading && card.img != cardBack.img ? 'hidden' : ''
+                      }`}
+                      onLoad={() => {
+                        if (card.img != cardBack.img && card.loading) {
+                          setPrizes((prev) =>
+                            prev.map((p, i) =>
+                              i === index ? { ...p, loading: false } : p
+                            )
+                          )
+                        }
+                      }}
+                      onError={() => {
+                        if (card.img != cardBack.img && card.loading) {
+                          setPrizes((prev) =>
+                            prev.map((p, i) =>
+                              i === index ? { ...p, loading: false } : p
+                            )
+                          )
+                        }
+                      }}
                     />
                   </div>
                 ))}
@@ -160,10 +200,44 @@ export default function Home() {
                         : 'grayscale opacity-50'
                     }`}
                   >
+                    {card.loading && (
+                      <div className='relative w-full'>
+                        <img
+                          src='/card-back.png'
+                          alt='Loading card'
+                          className='w-full h-auto object-contain rounded-lg'
+                        />
+                        <div className='absolute inset-0 flex items-center justify-center p-2'>
+                          <p className='text-white text-[8px] sm:text-xs font-semibold text-center leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]'>
+                            {card.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                     <img
                       src={card.img}
-                      alt='Deck card'
-                      className='w-full h-auto object-contain rounded-lg'
+                      alt={card.name || 'Deck card'}
+                      className={`w-full h-auto object-contain rounded-lg ${
+                        card.loading ? 'hidden' : ''
+                      }`}
+                      onLoad={() => {
+                        setDeckInfo((prev) =>
+                          prev.map((c) =>
+                            c.indexInDeck === card.indexInDeck
+                              ? { ...c, loading: false }
+                              : c
+                          )
+                        )
+                      }}
+                      onError={() => {
+                        setDeckInfo((prev) =>
+                          prev.map((c) =>
+                            c.indexInDeck === card.indexInDeck
+                              ? { ...c, loading: false }
+                              : c
+                          )
+                        )
+                      }}
                     />
                     <div className='absolute left-1/2 transform -translate-x-1/2 bottom-1 sm:bottom-2 text-white font-bold bg-red-700 border-2 border-white rounded-full w-7 h-7 sm:w-8 sm:h-8 text-xs sm:text-sm text-center flex items-center justify-center shadow-lg'>
                       {card.quantity}
